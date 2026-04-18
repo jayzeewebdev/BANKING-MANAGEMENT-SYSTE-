@@ -39,7 +39,7 @@ def create_accounts():
        print("Name can't contain numbers and special characters!")
        user_name = safe_input('Enter your name: ').title()
 
-    user_surname = safe_input('Enter your surname: ')
+    user_surname = safe_input('Enter your surname: ').title()
     while not re.fullmatch(r"[A-Za-z '-]+", user_surname):
      user_surname = safe_input('Enter your name: ').title()
 
@@ -71,7 +71,7 @@ def create_accounts():
 
 def get_balance():
   for user_id in system_database:
-    print(f"USER ID: {user_id}")
+    print(f"USER ID: {user_id}",'\n')
     user_data = system_database[user_id]
     print(f"USER NAME: {user_data['name']}")
     print(f"USER SURNAME: {user_data['surname']}")
@@ -98,6 +98,8 @@ def deposit():
         user_data['balance'] = new_balance
         
         print(f"Successfully deposited R{amount} into {account_number}")
+        print(f"NAME: {user_data['name']}")
+        print(f"SURNAME: {user_data['surname']}")
         print(f"NEW BALANCE: R{user_data['balance']}")
 
         break
@@ -106,7 +108,7 @@ def withdraw():
   while True:
      account_number = safe_input("Enter the account number you want to withdraw from ('q to quit'): ")
      if account_number in system_database:
-        print(f"ACCOUNT NUMBER: {account_number}")
+        print(f"ACCOUNT DETAILS: {account_number}, {user_data['name']} {user_data['surname']}")
         attempts = 3
         user_data = system_database[account_number]
         while attempts > 0:
@@ -119,7 +121,6 @@ def withdraw():
                   except ValueError:
                         print("Invalid amount. Please enter a number.")
                         continue
-                  withdrawal_amount = int(safe_input("Enter the withdrawal amount: "))
                   if withdrawal_amount > user_data['balance']:
                      print('INSUFICIENT FUNDS!')
                      
@@ -128,7 +129,7 @@ def withdraw():
                      print(f"SUCCESSFULLY WITHDRAWN {withdrawal_amount}")
                      
                      user_data['balance'] = new_balance
-                     print(f"BALANCE: {user_data['balance']}")
+                     print(f"BALANCE: R{user_data['balance']}")
                      break
 
             else:
@@ -139,7 +140,7 @@ def withdraw():
          print('You have exceeded the number of attempts!')
          print('Account locked temporaly, visit your nearest branch.')
 
-        break
+     break
    
 
 def transfer():
@@ -147,17 +148,23 @@ def transfer():
   
       sender_account = safe_input("Enter the account to transfer from ('q to quit'): ")
       if sender_account in system_database:
-         print(f"ACCOUNT NUMBER: {sender_account}")
-         attempts = 3
          user_data = system_database[sender_account]
+         print(f"ACCOUNT NUMBER: {sender_account}")
+         print(f"NAME: {user_data['name']}")
+         print(f"SURNAME: {user_data['surname']}")
+         attempts = 3
+         
          while attempts > 0:
                user_pin = safe_input('Enter your pin number associated with the account number: ')
                if user_pin == user_data['pin']:
                   receiver_account = safe_input('Enter the destination account: ')
                   if receiver_account in system_database:
-                     print(f"RECIEPIENT ACCOUNT: {receiver_account}")
+                     receiver_data = system_database[receiver_account]
+                     print(f"RECIEPIENT ACCOUNT: {receiver_account}, {receiver_data['name']} {receiver_data['surname']}")
+                     print('\n')
                      try:
                            amount = safe_input('Enter the amount to transfer: ')
+                           print('\n')
                      except ValueError:
                            print('Invalid amount please enter a valid number to continue')
                            continue
@@ -166,20 +173,23 @@ def transfer():
                               print('INSUFFICIENT FUNDS!')
                      elif amount <= user_data['balance']:
                               new_balance = user_data['balance'] - amount
-                              print(f"SUCCESSFULLY TRANSFERRED: R{amount} to RECIEVER'S ACCOUNT {receiver_account} {user_data['name']}")
-                              print(f"SENDERS ACCOUNT BALANCE: {new_balance}")
-                              receiver_account = user_data['balance']
-                              print(f"RECIEVER ACCOUNT: {receiver_account}")
-                              print(f"AMOUNT RECEIVED: {amount}")
+                              user_data['balance'] = new_balance
+                              print(f"SUCCESSFULLY TRANSFERRED: R{amount} to RECIEVER'S ACCOUNT {receiver_account}, {receiver_data['name']} {receiver_data['surname']}")
                               
-                              print(receiver_account)
-                              print(f"NAME: {user_data['name']}")
+                              print('\n')
+                              print(f"SENDERS ACCOUNT BALANCE: {new_balance}, {user_data['name']} {user_data['surname']}")
+                              print('\n')
+                              total = receiver_data['balance'] + amount
+                              receiver_data['balance'] = total
+                              print(f"New balance: {receiver_data['balance']}")
+                              print(f"RECIEVERS INFO: {receiver_account}{receiver_data['name']}")
+                              break
 
                   else:
                         print(f"Wrong pin, try again {attempts} attempts left")
                         attempts -= 1
 
-                  break
+      break
                      
         
 def exit_programm():
